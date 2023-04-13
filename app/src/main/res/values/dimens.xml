@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="title_large">22sp</dimen>
+    <dimen name="title_medium">16sp</dimen>
+    <dimen name="title_small">14sp</dimen>
+    <dimen name="body_large">16sp</dimen>
+    <dimen name="body_medium">14sp</dimen>
+    <dimen name="label_large">14sp</dimen>
+    <dimen name="label_medium">12sp</dimen>
+    <dimen name="label_small">11sp</dimen>
+
+    <dimen name="margin_x1">4dp</dimen>
+    <dimen name="margin_x2">8dp</dimen>
+    <dimen name="margin_x3">16dp</dimen>
+    <dimen name="margin_x4">24dp</dimen>
+    <dimen name="margin_x5">32dp</dimen>
+    <dimen name="margin_x6">48dp</dimen>
+    <dimen name="margin_x7">60dp</dimen>
+</resources>

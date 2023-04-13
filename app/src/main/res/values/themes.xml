@@ -1,0 +1,43 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.ClothesSuggester" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/dark_primary</item>
+        <item name="colorOnPrimary">@color/title</item>
+        <item name="android:statusBarColor">@color/white_background</item>
+    </style>
+
+    <style name="Text" parent="">
+        <item name="android:fontFamily">@font/itim_regular</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="Text.Title.large" parent="Text">
+        <item name="android:textColor">@color/title</item>
+        <item name="android:textSize">@dimen/title_large</item>
+    </style>
+
+    <style name="Text.Title.medium" parent="Text">
+        <item name="android:textColor">@color/sub_title</item>
+        <item name="android:textSize">@dimen/title_medium</item>
+    </style>
+
+    <style name="Text.body.large" parent="Text">
+        <item name="android:textColor">@color/sub_title</item>
+        <item name="android:textSize">@dimen/body_large</item>
+    </style>
+
+    <style name="Text.body.medium" parent="Text">
+        <item name="android:textColor">@color/sub_title</item>
+        <item name="android:textSize">@dimen/body_medium</item>
+    </style>
+
+    <style name="Text.body.medium.rating" parent="Text">
+        <item name="android:textColor">@color/title</item>
+        <item name="android:textSize">@dimen/body_medium</item>
+    </style>
+
+
+</resources>
