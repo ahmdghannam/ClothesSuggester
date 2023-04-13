@@ -1,5 +1,6 @@
 package com.example.clothessuggester.datasource
 
+import android.util.Log
 import com.example.clothessuggester.BuildConfig
 import com.example.clothessuggester.util.convertors.convertJsonToNationalResponseObject
 import com.example.clothessuggester.util.model.NationalResponse
@@ -13,6 +14,7 @@ fun makeRequestUsingOKHTTP(
     val client = OkHttpClient.Builder().build()
     val httpUrl = createHttpUrl(location)
     val request = createRequest(httpUrl)
+
     client.newCall(request).enqueue(object : Callback {
 
         override fun onFailure(call: Call, e: IOException) {
@@ -22,6 +24,7 @@ fun makeRequestUsingOKHTTP(
         override fun onResponse(call: Call, response: Response) {
             val jsonString = response.body?.string()
             val nationalResponse = convertJsonToNationalResponseObject(jsonString)
+//            Log.i("internetdata", "onResponse: ${nationalResponse.toString()} ")
             nationalResponse?.let {
                 uiChanging(it)
             }

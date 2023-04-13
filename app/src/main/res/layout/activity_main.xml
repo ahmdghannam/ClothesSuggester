@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white_background"
     tools:context=".ui.MainActivity">
 
-
     <TextView
-        android:id="@+id/textview_good_morning_evening"
+        android:id="@+id/textview_welcoming_message"
         style="@style/Text.Title.large"
         android:layout_marginStart="@dimen/margin_x4"
         android:layout_marginTop="@dimen/margin_x7"
@@ -21,15 +22,15 @@
         style="@style/Text.Title.medium"
         android:layout_marginTop="@dimen/margin_x2"
         android:text="@string/jenin_palestine"
-        app:layout_constraintStart_toStartOf="@id/textview_good_morning_evening"
-        app:layout_constraintTop_toBottomOf="@id/textview_good_morning_evening" />
+        app:layout_constraintStart_toStartOf="@id/textview_welcoming_message"
+        app:layout_constraintTop_toBottomOf="@id/textview_welcoming_message" />
 
     <TextView
         android:id="@+id/textview_time"
         style="@style/Text.Title.medium"
         android:layout_marginTop="@dimen/margin_x1"
         android:text="@string/_2_44_pm"
-        app:layout_constraintStart_toStartOf="@id/textview_good_morning_evening"
+        app:layout_constraintStart_toStartOf="@id/textview_welcoming_message"
         app:layout_constraintTop_toBottomOf="@id/textview_city_country" />
 
     <TextView
@@ -39,7 +40,7 @@
         android:drawablePadding="@dimen/margin_x3"
         android:text="@string/the_weather_is_cloudy"
         app:drawableStartCompat="@drawable/ic_weather"
-        app:layout_constraintStart_toStartOf="@id/textview_good_morning_evening"
+        app:layout_constraintStart_toStartOf="@id/textview_welcoming_message"
         app:layout_constraintTop_toBottomOf="@id/textview_time" />
 
     <TextView
@@ -49,7 +50,7 @@
         android:drawablePadding="@dimen/margin_x3"
         android:text="@string/the_tempreture_is_about_20c"
         app:drawableStartCompat="@drawable/ic_temp"
-        app:layout_constraintStart_toStartOf="@id/textview_good_morning_evening"
+        app:layout_constraintStart_toStartOf="@id/textview_welcoming_message"
         app:layout_constraintTop_toBottomOf="@id/textview_weather_status" />
 
     <TextView
@@ -59,7 +60,7 @@
         android:drawablePadding="@dimen/margin_x3"
         android:text="@string/the_wind_is_strong_be_carefull"
         app:drawableStartCompat="@drawable/ic_wind"
-        app:layout_constraintStart_toStartOf="@id/textview_good_morning_evening"
+        app:layout_constraintStart_toStartOf="@id/textview_welcoming_message"
         app:layout_constraintTop_toBottomOf="@id/textview_temperature" />
 
     <TextView
@@ -69,7 +70,7 @@
         android:drawablePadding="@dimen/margin_x3"
         android:text="@string/you_may_need_sun_glasses"
         app:drawableStartCompat="@drawable/ic_glasses"
-        app:layout_constraintStart_toStartOf="@id/textview_good_morning_evening"
+        app:layout_constraintStart_toStartOf="@id/textview_welcoming_message"
         app:layout_constraintTop_toBottomOf="@id/textview_wind" />
 
     <View
@@ -82,16 +83,18 @@
         app:layout_constraintTop_toBottomOf="@+id/textview_sun_glasses_or_umbrella" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/imageview_clothes"
+        android:id="@+id/cardview_clothes"
         android:layout_width="314dp"
         android:layout_height="314dp"
         android:layout_marginTop="@dimen/margin_x4"
         app:cardCornerRadius="16dp"
+        android:elevation="@dimen/margin_x3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider">
 
         <ImageView
+            android:id="@+id/imageview_clothes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
@@ -102,20 +105,35 @@
         android:id="@+id/textview_you_handsome"
         style="@style/Text.body.large"
         android:layout_marginTop="@dimen/margin_x4"
-        android:text="You will be handsome with this jacket"
-        app:layout_constraintStart_toStartOf="@id/imageview_clothes"
-        app:layout_constraintTop_toBottomOf="@id/imageview_clothes"
+        android:text="@string/you_will_be_handsome_with_this_jacket"
+        app:layout_constraintStart_toStartOf="@id/cardview_clothes"
+        app:layout_constraintTop_toBottomOf="@id/cardview_clothes"
 
         />
 
     <TextView
         android:id="@+id/textview_rating"
         style="@style/Text.body.medium"
-        android:layout_marginTop="@dimen/margin_x2"
-        android:text="how much do you like it ?"
-        app:layout_constraintStart_toStartOf="@id/imageview_clothes"
-        app:layout_constraintTop_toBottomOf="@id/textview_you_handsome" />
+        android:layout_marginTop="@dimen/margin_x4"
+        android:text="@string/how_much_do_you_like_it"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/cardview_clothes"
+        app:layout_constraintTop_toBottomOf="@id/textview_you_handsome"
+        app:layout_constraintVertical_bias="0.0" />
 
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_weather_icon"
+        android:layout_width="70dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/margin_x8"
+        android:layout_marginEnd="@dimen/margin_x4"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/weather_cloudy" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

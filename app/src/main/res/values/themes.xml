@@ -1,10 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ClothesSuggester" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.ClothesSuggester" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/dark_primary</item>
         <item name="colorOnPrimary">@color/title</item>
         <item name="android:statusBarColor">@color/white_background</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Text" parent="">
@@ -37,6 +38,12 @@
     <style name="Text.body.medium.rating" parent="Text">
         <item name="android:textColor">@color/title</item>
         <item name="android:textSize">@dimen/body_medium</item>
+    </style>
+
+    <style name="MyRatingBarStyle" parent="@android:style/Widget.RatingBar">
+        <item name="android:minHeight">10dp</item> <!-- set the minimum height here -->
+        <item name="android:minWidth">10dp</item> <!-- set the minimum height here -->
+        <item name="android:maxHeight">40dp</item> <!-- set the maximum height here -->
     </style>
 
 

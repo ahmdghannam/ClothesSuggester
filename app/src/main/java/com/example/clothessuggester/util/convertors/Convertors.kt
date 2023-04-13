@@ -12,5 +12,4 @@ fun convertJsonToNationalResponseObject(jsonString:String?):NationalResponse?{
         Log.i("batata", "convertJson: ${ex.message.toString()} ")
         null
     }
-
 }
