@@ -3,7 +3,6 @@ package com.example.clothessuggester.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +10,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.clothessuggester.R
@@ -20,6 +19,8 @@ import com.example.clothessuggester.databinding.ActivityMainBinding
 import com.example.clothessuggester.datasource.makeRequestUsingOKHTTP
 import com.example.clothessuggester.util.model.NationalResponse
 import com.example.clothessuggester.util.model.WeatherStatus
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,10 +29,14 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    private val fusedLocationClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        requestDataAccordingToLocation()
+//       requestDataAccordingToLocation()
     }
 
     private fun requestDataAccordingToLocation() {
@@ -86,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             updateWelcomingWords(response.weather.isDay)
             updateWeatherStatus(response)
-            updateLottieImage(response.weather.temperature)
+            updateLottieImageAccordingToWeather(response.weather.temperature)
             updateClothesImageView(response.weather.temperature)
             updateSunglassesUmbrellaSuggestion(response.weather.temperature)
         }
@@ -106,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     private fun suggestSunGlasses() {
         binding.textviewSunGlassesOrUmbrella.apply {
             visibility = View.VISIBLE
-            text = getString(R.string.you_may_need_sun_glasses)
+            text = getString(R.string.sun_glasses_suggestion)
             val drawable = resources.getDrawable(R.drawable.ic_glasses, null)
             setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
         }
@@ -151,23 +156,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getRandomColdClothes(): String {
-        return "https://euro.montbell.com/products/prod_img/zoom/z_2301368_bric.jpg"
+        return "https://www.insidehook.com/wp-content/uploads/2023/01/Ibex-Wool-Aire-Hoodie.jpg?fit=1200%2C800"
     }
 
-    private fun updateLottieImage(temperature: Int) {
+    private fun updateLottieImageAccordingToWeather(temperature: Int) {
         val weatherStatus = weatherStatus(temperature)
-
         when (weatherStatus) {
-            WeatherStatus.COLD -> changeLottieAnimation(R.raw.weather_raining_2)
+            WeatherStatus.COLD -> changeLottieAnimation(R.raw.weather_umbrella)
             WeatherStatus.NORMAL -> changeLottieAnimation(R.raw.weather_cloudy)
             WeatherStatus.HOT -> changeLottieAnimation(R.raw.weather_sunny)
         }
-
         binding.lottieWeatherIcon.apply {
             playAnimation()
             loop(true)
         }
-
     }
 
     private fun changeLottieAnimation(animationId: Int) {

@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">ClothesSuggester</string>
     <string name="good_morning">Good Morning</string>
-    <string name="jenin_palestine">Jenin Palestine</string>
-    <string name="_2_44_pm">2:44 Pm</string>
-    <string name="the_weather_is_cloudy">the weather is cloudy</string>
-    <string name="the_tempreture_is_about_20c">the tempreture is about: 20c</string>
-    <string name="the_wind_is_strong_be_carefull">the wind is strong, be carefull</string>
-    <string name="you_may_need_sun_glasses">you may need sun glasses</string>
+    <string name="city_country">City Country</string>
+    <string name="date_time">date time</string>
+    <string name="weather_status">weather status</string>
+    <string name="tempreture_degree">tempreture degree</string>
+    <string name="wind_speed">wind speed</string>
+    <string name="sun_glasses_suggestion">you may need sun glasses</string>
     <string name="you_will_be_handsome_with_this_jacket">You will be handsome with this jacket</string>
     <string name="how_much_do_you_like_it">how much do you like it ?</string>
     <string name="take_umbrella">you should take an umbrella</string>
