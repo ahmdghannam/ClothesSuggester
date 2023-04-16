@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
 
     <TextView
         android:id="@+id/textview_welcoming_message"
@@ -104,10 +110,10 @@
         style="@style/Text.body.large"
         android:layout_marginTop="@dimen/margin_x4"
         android:text="@string/you_will_be_handsome_with_this_jacket"
+        app:layout_constraintEnd_toEndOf="@+id/cardview_clothes"
         app:layout_constraintStart_toStartOf="@id/cardview_clothes"
-        app:layout_constraintTop_toBottomOf="@id/cardview_clothes"
-
-        />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@id/cardview_clothes" />
 
     <TextView
         android:id="@+id/textview_rating"
@@ -133,5 +139,5 @@
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/lottie_error" />
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

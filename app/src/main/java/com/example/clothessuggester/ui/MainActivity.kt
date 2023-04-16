@@ -1,29 +1,21 @@
 package com.example.clothessuggester.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.clothessuggester.R
 import com.example.clothessuggester.databinding.ActivityMainBinding
-
-import com.example.clothessuggester.datasource.makeRequestUsingOKHTTP
-import com.example.clothessuggester.util.model.NationalResponse
-import com.example.clothessuggester.util.model.WeatherStatus
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.example.clothessuggester.model.dto.NationalResponse
+import com.example.clothessuggester.model.dto.TempratureStatus
+import com.example.clothessuggester.presenters.MainPresenter
 import com.google.android.gms.location.LocationServices
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), IMainView {
 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -33,61 +25,46 @@ class MainActivity : AppCompatActivity() {
         LocationServices.getFusedLocationProviderClient(this)
     }
 
+    private val presenter by lazy {
+        MainPresenter(this,applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-//       requestDataAccordingToLocation()
+        addCallBacks()
+        requestDataAccordingToLocation()
+    }
+
+    private fun addCallBacks() {
+        binding.root.setOnRefreshListener {
+            requestDataAccordingToLocation()
+            binding.root.isRefreshing = false
+        }
     }
 
     private fun requestDataAccordingToLocation() {
-        val currentLocation = "32.32607774961586, 35.219691881093866"
-        Log.i("MAIN_ACTIVITY", "requestDataAccordingToLocation: $currentLocation ")
-        if (currentLocation == null) {
-            showErrorMessage()
-        } else {
-            makeRequestUsingOKHTTP(currentLocation, ::changeUIStatus)
-        }
+        presenter.changeWeatherStatus()
     }
 
     private fun showErrorMessage() {
-        val builder = AlertDialog.Builder(this)
-        builder.apply {
-            setTitle("Error")
-            setMessage("can't detect location, please recheck the internet and permissions")
-            setPositiveButton("ok") { dialog, which ->
-                dialog.dismiss()
-            }
-            setCancelable(true)
-        }
-
-        val dialog = builder.create()
-        dialog.show()
-    }
-
-    private fun getUserLocation(): String? {
-        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-
-        if (
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            Log.i("MAIN_ACTIVITY", "getUserLocation: $location ")
-            location?.let {
-                val latitude = it.latitude
-                val longitude = it.longitude
-                return "$latitude, $longitude"
+        runOnUiThread {
+            val builder = AlertDialog.Builder(this)
+            builder.apply {
+                setTitle("Error")
+                setMessage("can't detect location, please recheck the internet and permissions")
+                setPositiveButton("ok") { dialog, which ->
+                    dialog.dismiss()
+                }
+                setCancelable(false)
             }
 
+            val dialog = builder.create()
+            dialog.show()
         }
-
-        return null
     }
 
     private fun changeUIStatus(response: NationalResponse) {
-//        Log.i("internetdata", "onResponse: ${response.toString()} ")
         runOnUiThread {
             updateWelcomingWords(response.weather.isDay)
             updateWeatherStatus(response)
@@ -101,11 +78,20 @@ class MainActivity : AppCompatActivity() {
         val weatherStatus = weatherStatus(temperature)
 
         when (weatherStatus) {
-            WeatherStatus.COLD -> suggestUmbrella()
-            WeatherStatus.NORMAL -> hideSuggestionText()
-            WeatherStatus.HOT -> suggestSunGlasses()
+            TempratureStatus.COLD -> suggestUmbrella()
+            TempratureStatus.NORMAL -> hideSuggestionText()
+            TempratureStatus.HOT -> suggestSunGlasses()
         }
 
+    }
+
+    private fun suggestUmbrella() {
+        binding.textviewSunGlassesOrUmbrella.apply {
+            visibility = View.VISIBLE
+            text = getString(R.string.take_umbrella)
+            val drawable = resources.getDrawable(R.drawable.ic_umbrella, null)
+            setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+        }
     }
 
     private fun suggestSunGlasses() {
@@ -121,50 +107,25 @@ class MainActivity : AppCompatActivity() {
         binding.textviewSunGlassesOrUmbrella.visibility = View.GONE
     }
 
-    private fun suggestUmbrella() {
-        binding.textviewSunGlassesOrUmbrella.apply {
-            visibility = View.VISIBLE
-            text = getString(R.string.take_umbrella)
-            val drawable = resources.getDrawable(R.drawable.ic_umbrella, null)
-            setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
-        }
+    private fun updateClothesImageView(temperature:Int) {
+        val photo = presenter.getClothesPhoto(temperature)
+        loadClothesImage(photo)
     }
 
-    private fun updateClothesImageView(temperature: Int) {
-        val weatherStatus = weatherStatus(temperature)
-        val photo = when (weatherStatus) {
-            WeatherStatus.COLD -> getRandomColdClothes()
-            WeatherStatus.NORMAL -> getRandomNormalClothes()
-            WeatherStatus.HOT -> getRandomHotClothes()
-        }
-        loadImage(photo)
-    }
-
-    private fun loadImage(photo: String) {
+    private fun loadClothesImage(photo: String) {
+        Log.i(TAG, "loadClothesImage: $photo")
         Glide.with(this)
             .load(photo)
-            .error(R.drawable.ic_launcher_background)
+            .error(R.drawable.ic_no_image)
             .into(binding.imageviewClothes)
-    }
-
-    private fun getRandomHotClothes(): String {
-        return "https://fabrilife.com/image-gallery/638741f4b738e-square.jpg"
-    }
-
-    private fun getRandomNormalClothes(): String {
-        return "https://cdn.shopify.com/s/files/1/0896/8970/products/redprint_2_2f59a503-3ef7-4991-a247-3d40e9e58e63.jpg?v=1668774891"
-    }
-
-    private fun getRandomColdClothes(): String {
-        return "https://www.insidehook.com/wp-content/uploads/2023/01/Ibex-Wool-Aire-Hoodie.jpg?fit=1200%2C800"
     }
 
     private fun updateLottieImageAccordingToWeather(temperature: Int) {
         val weatherStatus = weatherStatus(temperature)
         when (weatherStatus) {
-            WeatherStatus.COLD -> changeLottieAnimation(R.raw.weather_umbrella)
-            WeatherStatus.NORMAL -> changeLottieAnimation(R.raw.weather_cloudy)
-            WeatherStatus.HOT -> changeLottieAnimation(R.raw.weather_sunny)
+            TempratureStatus.COLD -> changeLottieAnimation(R.raw.weather_umbrella)
+            TempratureStatus.NORMAL -> changeLottieAnimation(R.raw.weather_cloudy)
+            TempratureStatus.HOT -> changeLottieAnimation(R.raw.weather_sunny)
         }
         binding.lottieWeatherIcon.apply {
             playAnimation()
@@ -176,11 +137,11 @@ class MainActivity : AppCompatActivity() {
         binding.lottieWeatherIcon.setAnimation(animationId)
     }
 
-    private fun weatherStatus(temperature: Int): WeatherStatus {
+    private fun weatherStatus(temperature: Int): TempratureStatus {
         return when {
-            temperature < 15 -> WeatherStatus.COLD
-            temperature in 15..20 -> WeatherStatus.NORMAL
-            else -> WeatherStatus.HOT
+            temperature < 15 -> TempratureStatus.COLD
+            temperature in 15..20 -> TempratureStatus.NORMAL
+            else -> TempratureStatus.HOT
         }
     }
 
@@ -203,5 +164,16 @@ class MainActivity : AppCompatActivity() {
         binding.textviewWelcomingMessage.text = welcomingMessage
     }
 
+    override fun onApiFailure() {
+        showErrorMessage()
+    }
+
+    override fun onApiSuccess(response: NationalResponse) {
+        changeUIStatus(response)
+    }
+
+    companion object {
+        const val TAG = "MAIN_ACTIVITY"
+    }
 
 }

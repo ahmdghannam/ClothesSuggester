@@ -1,4 +1,4 @@
-package com.example.clothessuggester.util.model
+package com.example.clothessuggester.model.dto
 
 import com.google.gson.annotations.SerializedName
 data class Location(
