@@ -54,20 +54,31 @@ class MainActivity : AppCompatActivity(), IMainView {
         }
     }
 
-    override fun showErrorMessage() {
+    override fun showErrorToUser() {
         runOnUiThread {
-            val builder = AlertDialog.Builder(this)
-            builder.apply {
-                setTitle("Error")
-                setMessage("can't detect location, please recheck the internet and permissions")
-                setPositiveButton("ok") { dialog, which ->
-                    dialog.dismiss()
-                }
-                setCancelable(false)
-            }
-            val dialog = builder.create()
-            dialog.show()
+            showErrorAlertDialog()
+            setErrorLottieAnimation()
         }
+    }
+
+    private fun setErrorLottieAnimation() {
+        val animationId = R.raw.lottie_error
+        changeLottieAnimation(animationId)
+        loopLottieAnimation()
+    }
+
+    private fun showErrorAlertDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.apply {
+            setTitle("Error")
+            setMessage("can't detect location, please recheck the internet and permissions")
+            setPositiveButton("ok") { dialog, which ->
+                dialog.dismiss()
+            }
+            setCancelable(false)
+        }
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private fun updateSunglassesUmbrellaSuggestion(temperature: Int) {
@@ -120,6 +131,10 @@ class MainActivity : AppCompatActivity(), IMainView {
     private fun updateLottieImageAccordingToWeather(temperature: Int) {
         val animationId = presenter.getWeatherLottieAnimation(temperature)
         changeLottieAnimation(animationId)
+        loopLottieAnimation()
+    }
+
+    private fun loopLottieAnimation() {
         binding.lottieWeatherIcon.apply {
             playAnimation()
             loop(true)

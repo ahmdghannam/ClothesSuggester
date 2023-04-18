@@ -26,7 +26,7 @@ class MainPresenter(
     private val weatherApi by lazy {
         WeatherApiService(
             { view.updateUiState(it) },
-            { view.showErrorMessage() }
+            { view.showErrorToUser() }
         )
     }
     private val dataBase by lazy {
