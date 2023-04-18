@@ -8,7 +8,7 @@ import com.example.clothessuggester.model.WeatherApiService
 import com.example.clothessuggester.model.dto.DaysBetween
 import com.example.clothessuggester.model.dto.TempratureStatus
 import com.example.clothessuggester.ui.IMainView
-import com.example.clothessuggester.util.preferences.PrefsUtil
+import com.example.clothessuggester.util.PrefsUtil
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit

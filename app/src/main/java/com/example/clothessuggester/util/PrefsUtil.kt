@@ -1,4 +1,4 @@
-package com.example.clothessuggester.util.preferences
+package com.example.clothessuggester.util
 
 import android.content.Context
 import android.content.SharedPreferences
