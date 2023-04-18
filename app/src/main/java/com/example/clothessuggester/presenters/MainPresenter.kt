@@ -1,7 +1,6 @@
 package com.example.clothessuggester.presenters
 
 import android.content.Context
-import android.os.Build
 import com.example.clothessuggester.R
 import com.example.clothessuggester.model.ClothesDataBase
 import com.example.clothessuggester.model.WeatherApiService
@@ -9,10 +8,13 @@ import com.example.clothessuggester.model.dto.DaysBetween
 import com.example.clothessuggester.model.dto.TempratureStatus
 import com.example.clothessuggester.ui.IMainView
 import com.example.clothessuggester.util.PrefsUtil
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import kotlin.math.absoluteValue
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+import kotlin.math.abs
+
 
 class MainPresenter(
     private val view: IMainView,
@@ -38,9 +40,9 @@ class MainPresenter(
         return PrefsUtil.clothesLink ?: ""
     }
 
-    fun getWelcomingWords(isDay:Boolean):String{
-      return  if (isDay) applicationContext.getString(R.string.good_morning)
-      else applicationContext.getString(R.string.good_evening)
+    fun getWelcomingWords(isDay: Boolean): String {
+        return if (isDay) applicationContext.getString(R.string.good_morning)
+        else applicationContext.getString(R.string.good_evening)
     }
 
     private fun setLastWornClothes(currentClothes: String) {
@@ -64,17 +66,18 @@ class MainPresenter(
         weatherApi.getWeatherStatus(location)
     }
 
-
     private fun daysBetweenNowAndLastChecked(): DaysBetween {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) throw Exception("Api not compatible") // handle this
+        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
         val dateFromSharedPreferences = getLastCheckedDate()
-        val currentDate = LocalDate.now().toString()
 
-        val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-        val date1 = LocalDate.parse(dateFromSharedPreferences, dateFormatter)
-        val date2 = LocalDate.parse(currentDate, dateFormatter)
+        val dateSharedPrefFormatted = dateFormatter.parse(dateFromSharedPreferences)
 
-        val daysBetween = ChronoUnit.DAYS.between(date1, date2).absoluteValue
+        val currentDate = Date()
+        val currentDateFormatted = dateFormatter.parse(dateFormatter.format(currentDate))
+
+        val daysBetween =
+            TimeUnit.MILLISECONDS.toDays(abs(currentDateFormatted.time - dateSharedPrefFormatted.time))
 
         return when (daysBetween) {
             0L -> DaysBetween.SAME_DAY
@@ -104,21 +107,28 @@ class MainPresenter(
             TempratureStatus.HOT -> dataBase.getHotClothes(except)
         }
         setLastWornClothes(currentClothes)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            setLastCheckedDate(LocalDate.now().toString())
-        }
+        val currentDate = getCurrentDate()
+        setLastCheckedDate(currentDate)
         return currentClothes
+    }
+
+    private fun getCurrentDate(): String {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        return "$year-$month-$day"
     }
 
     private fun getTemperatureEvaluation(temperature: Int): TempratureStatus {
         return when {
-            // dont use hardcoded numbers
             temperature < LOW_TEMPERATURE -> TempratureStatus.COLD
             temperature in MID_TEMPERATURES -> TempratureStatus.NORMAL
             else -> TempratureStatus.HOT
         }
     }
-     fun weatherStatus(temperature: Int): TempratureStatus {
+
+    fun weatherStatus(temperature: Int): TempratureStatus {
         return when {
             temperature < LOW_TEMPERATURE -> TempratureStatus.COLD
             temperature in MID_TEMPERATURES -> TempratureStatus.NORMAL
@@ -127,7 +137,7 @@ class MainPresenter(
     }
 
     fun getWeatherLottieAnimation(temperature: Int): Int {
-       return when (weatherStatus(temperature)) {
+        return when (weatherStatus(temperature)) {
             TempratureStatus.COLD -> R.raw.weather_umbrella
             TempratureStatus.NORMAL -> R.raw.weather_cloudy
             TempratureStatus.HOT -> R.raw.weather_sunny
