@@ -2,7 +2,6 @@ package com.example.clothessuggester.presenters
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.clothessuggester.R
 import com.example.clothessuggester.model.ClothesDataBase
 import com.example.clothessuggester.model.WeatherApiService
@@ -17,16 +16,17 @@ import kotlin.math.absoluteValue
 
 class MainPresenter(
     private val view: IMainView,
-    private val applcationContext: Context
+    private val applicationContext: Context
 ) {
 
     init {
-        PrefsUtil.initPreferences(applcationContext)
+        PrefsUtil.initPreferences(applicationContext)
     }
+
     private val weatherApi by lazy {
         WeatherApiService(
-            { view.onApiSuccess(it) },
-            { view.onApiFailure() }
+            { view.updateUiState(it) },
+            { view.showErrorMessage() }
         )
     }
     private val dataBase by lazy {
@@ -36,6 +36,11 @@ class MainPresenter(
 
     private fun getLastWornClothes(): String {
         return PrefsUtil.clothesLink ?: ""
+    }
+
+    fun getWelcomingWords(isDay:Boolean):String{
+      return  if (isDay) applicationContext.getString(R.string.good_morning)
+      else applicationContext.getString(R.string.good_evening)
     }
 
     private fun setLastWornClothes(currentClothes: String) {
@@ -51,17 +56,17 @@ class MainPresenter(
     }
 
     private fun getCurrentLocation(): String {
-        return applcationContext.getString(R.string.location)
+        return applicationContext.getString(R.string.location)
     }
 
     fun changeWeatherStatus() {
         val location = getCurrentLocation()
-        weatherApi.makeRequestUsingOKHTTP(location)
+        weatherApi.getWeatherStatus(location)
     }
 
 
     private fun daysBetweenNowAndLastChecked(): DaysBetween {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) throw Exception("Api not compatible")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) throw Exception("Api not compatible") // handle this
         val dateFromSharedPreferences = getLastCheckedDate()
         val currentDate = LocalDate.now().toString()
 
@@ -78,7 +83,7 @@ class MainPresenter(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     fun getClothesPhoto(temperature: Int): String {
         val lastWornClothes = getLastWornClothes()
         return when (daysBetweenNowAndLastChecked()) {
@@ -88,7 +93,7 @@ class MainPresenter(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     private fun changeClothesWithRandomOne(
         temperature: Int,
         except: String = ""
@@ -99,16 +104,41 @@ class MainPresenter(
             TempratureStatus.HOT -> dataBase.getHotClothes(except)
         }
         setLastWornClothes(currentClothes)
-        setLastCheckedDate(LocalDate.now().toString())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setLastCheckedDate(LocalDate.now().toString())
+        }
         return currentClothes
     }
 
     private fun getTemperatureEvaluation(temperature: Int): TempratureStatus {
         return when {
-            temperature < 15 -> TempratureStatus.COLD
-            temperature in 15..25 -> TempratureStatus.NORMAL
+            // dont use hardcoded numbers
+            temperature < LOW_TEMPERATURE -> TempratureStatus.COLD
+            temperature in MID_TEMPERATURES -> TempratureStatus.NORMAL
             else -> TempratureStatus.HOT
         }
+    }
+     fun weatherStatus(temperature: Int): TempratureStatus {
+        return when {
+            temperature < LOW_TEMPERATURE -> TempratureStatus.COLD
+            temperature in MID_TEMPERATURES -> TempratureStatus.NORMAL
+            else -> TempratureStatus.HOT
+        }
+    }
+
+    fun getWeatherLottieAnimation(temperature: Int): Int {
+       return when (weatherStatus(temperature)) {
+            TempratureStatus.COLD -> R.raw.weather_umbrella
+            TempratureStatus.NORMAL -> R.raw.weather_cloudy
+            TempratureStatus.HOT -> R.raw.weather_sunny
+        }
+
+    }
+
+    companion object {
+        private const val LOW_TEMPERATURE = 15
+        private const val HIGH_TEMPERATURE = 25
+        private val MID_TEMPERATURES = LOW_TEMPERATURE..HIGH_TEMPERATURE
     }
 
 }

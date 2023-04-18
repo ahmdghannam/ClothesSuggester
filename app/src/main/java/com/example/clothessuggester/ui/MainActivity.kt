@@ -12,7 +12,6 @@ import com.example.clothessuggester.databinding.ActivityMainBinding
 import com.example.clothessuggester.model.dto.NationalResponse
 import com.example.clothessuggester.model.dto.TempratureStatus
 import com.example.clothessuggester.presenters.MainPresenter
-import com.google.android.gms.location.LocationServices
 
 
 class MainActivity : AppCompatActivity(), IMainView {
@@ -21,12 +20,9 @@ class MainActivity : AppCompatActivity(), IMainView {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private val fusedLocationClient by lazy {
-        LocationServices.getFusedLocationProviderClient(this)
-    }
 
     private val presenter by lazy {
-        MainPresenter(this,applicationContext)
+        MainPresenter(this, applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,8 +32,9 @@ class MainActivity : AppCompatActivity(), IMainView {
         requestDataAccordingToLocation()
     }
 
+
     private fun addCallBacks() {
-        binding.root.setOnRefreshListener {
+        binding.homeRefresh.setOnRefreshListener {
             requestDataAccordingToLocation()
             binding.root.isRefreshing = false
         }
@@ -47,7 +44,17 @@ class MainActivity : AppCompatActivity(), IMainView {
         presenter.changeWeatherStatus()
     }
 
-    private fun showErrorMessage() {
+    override fun updateUiState(response: NationalResponse) {
+        runOnUiThread {
+            updateWelcomingWords(response.weather.isDay)
+            updateWeatherStatus(response)
+            updateLottieImageAccordingToWeather(response.weather.temperature)
+            updateClothesImageView(response.weather.temperature)
+            updateSunglassesUmbrellaSuggestion(response.weather.temperature)
+        }
+    }
+
+    override fun showErrorMessage() {
         runOnUiThread {
             val builder = AlertDialog.Builder(this)
             builder.apply {
@@ -58,24 +65,14 @@ class MainActivity : AppCompatActivity(), IMainView {
                 }
                 setCancelable(false)
             }
-
             val dialog = builder.create()
             dialog.show()
         }
     }
 
-    private fun changeUIStatus(response: NationalResponse) {
-        runOnUiThread {
-            updateWelcomingWords(response.weather.isDay)
-            updateWeatherStatus(response)
-            updateLottieImageAccordingToWeather(response.weather.temperature)
-            updateClothesImageView(response.weather.temperature)
-            updateSunglassesUmbrellaSuggestion(response.weather.temperature)
-        }
-    }
-
     private fun updateSunglassesUmbrellaSuggestion(temperature: Int) {
-        val weatherStatus = weatherStatus(temperature)
+
+        val weatherStatus = presenter.weatherStatus(temperature)
 
         when (weatherStatus) {
             TempratureStatus.COLD -> suggestUmbrella()
@@ -107,7 +104,7 @@ class MainActivity : AppCompatActivity(), IMainView {
         binding.textviewSunGlassesOrUmbrella.visibility = View.GONE
     }
 
-    private fun updateClothesImageView(temperature:Int) {
+    private fun updateClothesImageView(temperature: Int) {
         val photo = presenter.getClothesPhoto(temperature)
         loadClothesImage(photo)
     }
@@ -121,12 +118,8 @@ class MainActivity : AppCompatActivity(), IMainView {
     }
 
     private fun updateLottieImageAccordingToWeather(temperature: Int) {
-        val weatherStatus = weatherStatus(temperature)
-        when (weatherStatus) {
-            TempratureStatus.COLD -> changeLottieAnimation(R.raw.weather_umbrella)
-            TempratureStatus.NORMAL -> changeLottieAnimation(R.raw.weather_cloudy)
-            TempratureStatus.HOT -> changeLottieAnimation(R.raw.weather_sunny)
-        }
+        val animationId = presenter.getWeatherLottieAnimation(temperature)
+        changeLottieAnimation(animationId)
         binding.lottieWeatherIcon.apply {
             playAnimation()
             loop(true)
@@ -135,14 +128,6 @@ class MainActivity : AppCompatActivity(), IMainView {
 
     private fun changeLottieAnimation(animationId: Int) {
         binding.lottieWeatherIcon.setAnimation(animationId)
-    }
-
-    private fun weatherStatus(temperature: Int): TempratureStatus {
-        return when {
-            temperature < 15 -> TempratureStatus.COLD
-            temperature in 15..20 -> TempratureStatus.NORMAL
-            else -> TempratureStatus.HOT
-        }
     }
 
     private fun updateWeatherStatus(response: NationalResponse) {
@@ -160,17 +145,10 @@ class MainActivity : AppCompatActivity(), IMainView {
     }
 
     private fun updateWelcomingWords(isDay: Boolean) {
-        val welcomingMessage = if (isDay) "Good morning" else "Good evening"
+        val welcomingMessage = presenter.getWelcomingWords(isDay)
         binding.textviewWelcomingMessage.text = welcomingMessage
     }
 
-    override fun onApiFailure() {
-        showErrorMessage()
-    }
-
-    override fun onApiSuccess(response: NationalResponse) {
-        changeUIStatus(response)
-    }
 
     companion object {
         const val TAG = "MAIN_ACTIVITY"

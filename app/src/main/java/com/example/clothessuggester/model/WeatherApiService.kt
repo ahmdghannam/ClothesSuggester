@@ -11,7 +11,9 @@ class WeatherApiService(
     private val onSuccess: (NationalResponse) -> Unit,
     private val onFailure: () -> Unit
 ) : Callback {
-    fun makeRequestUsingOKHTTP(location: String) {
+
+
+    fun getWeatherStatus(location: String) {
         val client = OkHttpClient.Builder().build()
         val httpUrl = createHttpUrl(location)
         val request = createRequest(httpUrl)
